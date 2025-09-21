@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<h2>Subject-wise Analytics</h2>
+<canvas id="subjectChart" width="400" height="200" class="mb-5"></canvas>
+
+<h2>Grade Distribution</h2>
+<canvas id="gradeChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+    // Declare JS variables in local scope
+    const subjects = {{ subjects|safe }};
+    const averages = {{ averages|safe }};
+
+    // --- Bar Chart: Average Marks per Subject ---
+    const ctx = document.getElementById('subjectChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: 'Average Marks',
+                data: averages,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                title: { display: true, text: 'Average Marks per Subject' }
+            },
+            scales: { y: { beginAtZero: true, max: 100 } }
+        }
+    });
+
+    // --- Pie Chart: Grade Distribution ---
+    const gradeCounts = { "A": 0, "B": 0, "C": 0 };
+    averages.forEach(avg => {
+        if (avg >= 80) gradeCounts["A"]++;
+        else if (avg >= 50) gradeCounts["B"]++;
+        else gradeCounts["C"]++;
+    });
+
+    const ctx2 = document.getElementById('gradeChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: Object.keys(gradeCounts),
+            datasets: [{
+                data: Object.values(gradeCounts),
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(255, 99, 132, 0.7)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                title: { display: true, text: 'Grade Distribution' }
+            }
+        }
+    });
+
+})();
+</script>
+{% endblock %}
